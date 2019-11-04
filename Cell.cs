@@ -4,20 +4,29 @@ namespace MineSweeper
 {
     class Cell
     {
-        private int proximity;
-        private bool snooped;
-        private bool isBomb;
-        private bool flagged;
-        private Cell[] neighbours;
-        public Cell(int row, int col)
-        {
-            proximity = 0;
-            snooped = false;
-            isBomb = false;
-            flagged = false;
-            neighbours = new Cell[8];
+        public struct PositionStruct {
+            public int x, y;
+            public PositionStruct(int x, int y)
+            {
+                this.x = x;
+                this.y = y;
+            }
         }
-
+        int proximity;
+        bool snooped;
+        bool isBomb;
+        bool flagged;
+        Cell[] neighbours;
+        public PositionStruct Position;
+        public Cell(int x, int y)
+        {
+            this.proximity = 0;
+            this.snooped = false;
+            this.isBomb = false;
+            this.flagged = false;
+            this.neighbours = new Cell[8];
+            this.Position = new PositionStruct(x, y);
+        }
         public Cell Left
         {
             get => neighbours[0];
@@ -77,10 +86,30 @@ namespace MineSweeper
             set => flagged = value;
         }
 
-        public bool Bomb
+        public bool IsBomb
         {
             get => isBomb;
             set => isBomb = value;
+        }
+
+        public override string ToString()
+        {
+            string ret = this.GetType() + "\n" ;
+            ret += "Position: (" + Position.x + ", " + Position.y + ")\n";
+            ret += "Is a Bomb: " + IsBomb + "\n";
+            ret += "is Flagged: " + Flagged + "\n";
+            ret += "Snooped: " + Snooped + "\n";
+            ret += "Proximity: " + Proximity + "\n";
+            int count = 0;
+            foreach (var neighbour in neighbours)
+            {
+                if(neighbour != null)
+                {
+                    count++;
+                }
+            }
+            ret += "Number of Neighbours: " + count;
+            return ret;
         }
     }
 }
