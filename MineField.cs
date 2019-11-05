@@ -216,7 +216,7 @@ namespace MineSweeper
             }
             else
             {
-                if (selectedCell.Flagged) 
+                if (selectedCell.Flagged)
                 {
                     Moves--;
                     return GameStatus.Running;
@@ -233,7 +233,12 @@ namespace MineSweeper
 
             if (Bombs == 0)
             {
-                //check if win
+                int numCells = Rows * Cols;
+                int numCheckedCells = Snooped + Flags;
+                if((numCheckedCells == numCells) &&  CheckFlags())
+                { 
+                    return GameStatus.Win;
+                }
             }
             return GameStatus.Running;
         }
@@ -258,6 +263,15 @@ namespace MineSweeper
                     if (neighbour != null) BreadthFirstSearch(neighbour);
                 }
             }
+        }
+
+        bool CheckFlags()
+        {
+            foreach (var cell in Field)
+            {
+                if(cell.Flagged && !cell.IsBomb) return false;
+            }
+            return true;
         }
 
         public string PrintBoard()

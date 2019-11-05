@@ -4,7 +4,6 @@ namespace MineSweeper
 {
     class Program
     {
-
         static MineField.Mode Mode = MineField.Mode.Flagging;
         static bool ProcessInput(string input, ref Cell.PositionStruct pos)
         {
@@ -24,7 +23,7 @@ namespace MineSweeper
                 {
                     Mode = MineField.Mode.Flagging;
                 }
-                else if(inputs[2].ToLower().Equals("s"))
+                else if (inputs[2].ToLower().Equals("s"))
                 {
                     Mode = MineField.Mode.Snooping;
                 }
@@ -38,7 +37,7 @@ namespace MineSweeper
         {
             MineField field = new MineField(rows: 15, cols: 10, numBombs: 20);
             Cell.PositionStruct pos = new Cell.PositionStruct(-1, -1);
-            bool malformedInput = false;
+            bool malformedInput = true;
             bool running = true;
             while (running)
             {
@@ -47,14 +46,13 @@ namespace MineSweeper
                 Console.WriteLine(field.PrintBoard());
                 if (malformedInput)
                 {
-                    Console.Write("Incorect Input\n");
-                    Console.Write("Proper Syntax: `x y [ f | s ]` for coord (x,y)\n");
+                    Console.Write("Proper Syntax: `x y [ f or s ]` for coord (x,y)\n");
                     Console.Write("`x` is a number from the numbers along the top\n");
                     Console.Write("`y` is a number from the numbers along the left\n");
                     Console.Write("`f` is to flag the coordinate\n");
                     Console.Write("`s` is to snoop the coordinate\n");
                 }
-                Console.Write("Enter Coords: ");
+                Console.Write("Enter x y f/s: ");
                 if (ProcessInput(Console.ReadLine(), ref pos))
                 {
                     Console.WriteLine("({0},{1})", pos.x, pos.y);
@@ -67,8 +65,17 @@ namespace MineSweeper
                             Console.Clear();
                             Console.WriteLine("Bombs: {0} | Moves: {1}", field.Bombs, field.Moves);
                             Console.WriteLine(field.ToString());
-                            Console.WriteLine("Game Over!");
+                            Console.WriteLine("Game Over! You Lose :(");
                             break;
+
+                        case MineField.GameStatus.Win:
+                            running = false;
+                            Console.Clear();
+                            Console.WriteLine("Bombs: {0} | Moves: {1}", field.Bombs, field.Moves);
+                            Console.WriteLine(field.ToString());
+                            Console.WriteLine("Game Over! You Won!! Woo!");
+                            break;
+
 
                         default:
                             running = true;
@@ -80,7 +87,7 @@ namespace MineSweeper
                     malformedInput = true;
                 }
             }
-            Console.Write("Press Any Key to Quit :)");
+            Console.Write("Press Any Key to Quit... ");
             Console.ReadLine();
         }
     }
