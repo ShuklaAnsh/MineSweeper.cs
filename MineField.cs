@@ -4,8 +4,14 @@ namespace MineSweeper
 {
     class MineField
     {
+        public enum Mode
+        {
+            Flagging, Snooping
+        }
+
         Cell[,] Field;
-        int Rows, Cols, Bombs;
+        int Rows, Cols, Snooped;
+        public int Bombs, Moves, Flags;
         public MineField(int rows, int cols, int numBombs)
         {
             Field = new Cell[cols, rows];
@@ -25,7 +31,6 @@ namespace MineSweeper
                 }
             }
             InitCellNeighbours();
-            InitBombs(ref Field[1, 1]); // <-- move this to when first move
         }
 
         void InitCellNeighbours()
@@ -166,6 +171,86 @@ namespace MineSweeper
             }
         }
 
+        public void HandleSelection(Cell.PositionStruct pos, Mode mode)
+        {
+            Cell selectedCell = new Cell(-1, -1);
+            try 
+            {
+                selectedCell = Field[pos.x, pos.y];
+            }
+            catch (IndexOutOfRangeException)
+            {
+                Console.Write("Bad Coordinates. Press Enter to Continue...");
+                Console.ReadLine();
+                return;
+            }
+            if(Moves == 0)
+            {
+                InitBombs(ref selectedCell);
+            }
+            else if(selectedCell.Snooped)
+            {
+                return;
+            }
+
+            Moves++;
+
+            if(mode == Mode.Flagging)
+            {
+                if(selectedCell.Flagged)
+                {
+                    selectedCell.Flagged = false;
+                    Flags--;
+                    Bombs++;
+                }
+                else
+                {
+                    selectedCell.Flagged = true;
+                    Flags++;
+                    Bombs--;
+                }
+            }
+            else
+            {
+                if(selectedCell.IsBomb)
+                {
+                    //GameOver -> Lose
+                    return;
+                }
+                else
+                {
+                    BreadthFirstSearch(selectedCell);
+                }
+            }
+
+            if (Bombs == 0)
+            {
+                //check if win
+            }
+        }
+
+        void BreadthFirstSearch(Cell cell)
+        {
+            if(cell.Snooped || cell.Flagged)
+            {
+                return;
+            }
+            cell.Snooped = true;
+            Snooped++;
+
+            if(cell.Proximity > 0)
+            {
+                return;
+            }
+            else
+            {
+                foreach (var neighbour in cell.Neighbours)
+                {
+                    if(neighbour != null) BreadthFirstSearch(neighbour);
+                }
+            }
+        }
+        
         public override string ToString()
         {
             string board = "  ";
