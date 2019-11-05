@@ -13,8 +13,6 @@ namespace MineSweeper
             Cols = cols;
             Bombs = numBombs;
             InitCells();
-            Console.WriteLine(this);
-            Console.WriteLine(Field[0, 2]);
         }
 
         void InitCells()
@@ -27,7 +25,7 @@ namespace MineSweeper
                 }
             }
             InitCellNeighbours();
-            InitBombs(ref Field[1, 1]);
+            InitBombs(ref Field[1, 1]); // <-- move this to when first move
         }
 
         void InitCellNeighbours()
@@ -101,14 +99,6 @@ namespace MineSweeper
 
         bool CornerBoundaries(ref Cell cell, int x, int y)
         {
-            // var left = Field[x - 1, y];
-            // var topLeft = Field[x - 1, y - 1];
-            // var top = Field[x, y - 1];
-            // var topRight = Field[x + 1, y - 1];
-            // var right = Field[x + 1, y];
-            // var bottomRight = Field[x + 1, y + 1];
-            // var bottom = Field[x, y + 1];
-            // var bottomLeft = Field[x - 1, y + 1];
             // Top Left Border
             Cell borderCell = null;
             if ((x == 0) && (y == 0))
@@ -178,15 +168,20 @@ namespace MineSweeper
 
         public override string ToString()
         {
-            string board = "";
+            string board = "  ";
+            for (var x = 0; x < Cols; x++)
+            {
+                board += " " + x + " ";
+            }
+            board += "\n";
             for (var y = 0; y < Rows; y++)
             {
-                string boardRow = "";
+                string boardRow = y + " ";
                 for (var x = 0; x < Cols; x++)
                 {
                     var cell = Field[x, y];
                     string boardCell = cell.IsBomb ? "x" : cell.Proximity.ToString();
-                    boardRow += "[" + boardCell + "] ";
+                    boardRow += "[" + boardCell + "]";
                 }
                 board += boardRow + "\n";
             }
