@@ -36,7 +36,7 @@ namespace MineSweeper
         }
         static void Main(string[] args)
         {
-            MineField field = new MineField(rows: 10, cols: 10, numBombs: 20);
+            MineField field = new MineField(rows: 15, cols: 10, numBombs: 20);
             Cell.PositionStruct pos = new Cell.PositionStruct(-1, -1);
             bool malformedInput = false;
             bool running = true;
@@ -44,7 +44,7 @@ namespace MineSweeper
             {
                 Console.Clear();
                 Console.WriteLine("Bombs: {0} | Moves: {1}", field.Bombs, field.Moves);
-                Console.WriteLine(field.ToString());
+                Console.WriteLine(field.PrintBoard());
                 if (malformedInput)
                 {
                     Console.Write("Incorect Input\n");
@@ -58,15 +58,30 @@ namespace MineSweeper
                 if (ProcessInput(Console.ReadLine(), ref pos))
                 {
                     Console.WriteLine("({0},{1})", pos.x, pos.y);
-                    field.HandleSelection(pos, Mode);
                     malformedInput = false;
+                    MineField.GameStatus status = field.HandleSelection(pos, Mode);
+                    switch (status)
+                    {
+                        case MineField.GameStatus.Lose:
+                            running = false;
+                            Console.Clear();
+                            Console.WriteLine("Bombs: {0} | Moves: {1}", field.Bombs, field.Moves);
+                            Console.WriteLine(field.ToString());
+                            Console.WriteLine("Game Over!");
+                            break;
+
+                        default:
+                            running = true;
+                            break;
+                    }
                 }
                 else
                 {
                     malformedInput = true;
                 }
             }
-            Console.WriteLine("Game Over!");
+            Console.Write("Press Any Key to Quit :)");
+            Console.ReadLine();
         }
     }
 }

@@ -8,6 +8,10 @@ namespace MineSweeper
         {
             Flagging, Snooping
         }
+        public enum GameStatus
+        {
+            Running, Win, Lose
+        }
 
         Cell[,] Field;
         int Rows, Cols, Snooped;
@@ -151,7 +155,7 @@ namespace MineSweeper
             {
                 int randCol = rng.Next(0, Cols - 1);
                 int randRow = rng.Next(0, Rows - 1);
-                Cell randCell = Field[randRow, randCol];
+                Cell randCell = Field[randCol, randRow];
                 if (randCell.IsBomb || randCell.Position.Equals(startingCell.Position))
                 {
                     i--;
@@ -171,10 +175,10 @@ namespace MineSweeper
             }
         }
 
-        public void HandleSelection(Cell.PositionStruct pos, Mode mode)
+        public GameStatus HandleSelection(Cell.PositionStruct pos, Mode mode)
         {
             Cell selectedCell = new Cell(-1, -1);
-            try 
+            try
             {
                 selectedCell = Field[pos.x, pos.y];
             }
@@ -182,22 +186,22 @@ namespace MineSweeper
             {
                 Console.Write("Bad Coordinates. Press Enter to Continue...");
                 Console.ReadLine();
-                return;
+                return GameStatus.Running;
             }
-            if(Moves == 0)
+            if (Moves == 0)
             {
                 InitBombs(ref selectedCell);
             }
-            else if(selectedCell.Snooped)
+            else if (selectedCell.Snooped)
             {
-                return;
+                return GameStatus.Running;
             }
 
             Moves++;
 
-            if(mode == Mode.Flagging)
+            if (mode == Mode.Flagging)
             {
-                if(selectedCell.Flagged)
+                if (selectedCell.Flagged)
                 {
                     selectedCell.Flagged = false;
                     Flags--;
@@ -212,10 +216,14 @@ namespace MineSweeper
             }
             else
             {
-                if(selectedCell.IsBomb)
+                if (selectedCell.Flagged) 
                 {
-                    //GameOver -> Lose
-                    return;
+                    Moves--;
+                    return GameStatus.Running;
+                }
+                if (selectedCell.IsBomb)
+                {
+                    return GameStatus.Lose;
                 }
                 else
                 {
@@ -227,18 +235,19 @@ namespace MineSweeper
             {
                 //check if win
             }
+            return GameStatus.Running;
         }
 
         void BreadthFirstSearch(Cell cell)
         {
-            if(cell.Snooped || cell.Flagged)
+            if (cell.Snooped || cell.Flagged)
             {
                 return;
             }
             cell.Snooped = true;
             Snooped++;
 
-            if(cell.Proximity > 0)
+            if (cell.Proximity > 0)
             {
                 return;
             }
@@ -246,26 +255,50 @@ namespace MineSweeper
             {
                 foreach (var neighbour in cell.Neighbours)
                 {
-                    if(neighbour != null) BreadthFirstSearch(neighbour);
+                    if (neighbour != null) BreadthFirstSearch(neighbour);
                 }
             }
         }
-        
-        public override string ToString()
+
+        public string PrintBoard()
         {
-            string board = "  ";
+            string board = "   ";
             for (var x = 0; x < Cols; x++)
             {
-                board += " " + x + " ";
+                board += (x > 9) ? x + " " : " " + x + " ";
             }
             board += "\n";
             for (var y = 0; y < Rows; y++)
             {
-                string boardRow = y + " ";
+                string boardRow = (y > 9) ? y + " " : " " + y + " ";
                 for (var x = 0; x < Cols; x++)
                 {
                     var cell = Field[x, y];
-                    string boardCell = cell.IsBomb ? "x" : cell.Proximity.ToString();
+                    string boardCell = " ";
+                    if (cell.Snooped) boardCell = cell.Proximity.ToString();
+                    else if (cell.Flagged) boardCell = "#";
+                    boardRow += "[" + boardCell + "]";
+                }
+                board += boardRow + "\n";
+            }
+            return board;
+        }
+
+        public override string ToString()
+        {
+            string board = "   ";
+            for (var x = 0; x < Cols; x++)
+            {
+                board += (x > 9) ? x + " " : " " + x + " ";
+            }
+            board += "\n";
+            for (var y = 0; y < Rows; y++)
+            {
+                string boardRow = (y > 9) ? y + " " : " " + y + " ";
+                for (var x = 0; x < Cols; x++)
+                {
+                    var cell = Field[x, y];
+                    string boardCell = cell.IsBomb ? "*" : cell.Proximity.ToString();
                     boardRow += "[" + boardCell + "]";
                 }
                 board += boardRow + "\n";
