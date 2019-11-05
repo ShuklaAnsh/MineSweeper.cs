@@ -6,7 +6,7 @@ namespace MineSweeper
     {
         static void Main(string[] args)
         {
-            MineField field = new MineField(10, 10);
+            MineField field = new MineField(rows: 10, cols: 10, numBombs: 20);
         }
     }
 }

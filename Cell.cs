@@ -4,7 +4,8 @@ namespace MineSweeper
 {
     class Cell
     {
-        public struct PositionStruct {
+        public struct PositionStruct
+        {
             public int x, y;
             public PositionStruct(int x, int y)
             {
@@ -26,6 +27,10 @@ namespace MineSweeper
             this.flagged = false;
             this.neighbours = new Cell[8];
             this.Position = new PositionStruct(x, y);
+        }
+        public Cell[] Neighbours
+        {
+            get => neighbours;
         }
         public Cell Left
         {
@@ -92,9 +97,41 @@ namespace MineSweeper
             set => isBomb = value;
         }
 
+        #nullable enable
+        public void addNeighbours(
+            ref Cell? left, ref Cell? topLeft, ref Cell? top, 
+            ref Cell? topRight, ref Cell? right, ref Cell? bottomRight, 
+            ref Cell? bottom, ref Cell? bottomLeft
+        )
+        {
+            Left = left;
+            if (left != null) left.Right = this;
+
+            TopLeft = topLeft;
+            if (topLeft != null) topLeft.BottomRight = this;
+
+            Top = top;
+            if (top != null) top.Bottom = this;
+
+            TopRight = topRight;
+            if (topRight != null) topRight.BottomLeft = this;
+
+            Right = right;
+            if (right != null) right.Left = this;
+
+            BottomRight = bottomRight;
+            if (bottomRight != null) bottomRight.TopLeft = this;
+
+            Bottom = bottom;
+            if (bottom != null) bottom.Top = this;
+
+            BottomLeft = bottomLeft;
+            if (bottomLeft != null) bottomLeft.TopRight = this;
+        }
+
         public override string ToString()
         {
-            string ret = this.GetType() + "\n" ;
+            string ret = this.GetType() + "\n";
             ret += "Position: (" + Position.x + ", " + Position.y + ")\n";
             ret += "Is a Bomb: " + IsBomb + "\n";
             ret += "is Flagged: " + Flagged + "\n";
@@ -103,7 +140,7 @@ namespace MineSweeper
             int count = 0;
             foreach (var neighbour in neighbours)
             {
-                if(neighbour != null)
+                if (neighbour != null)
                 {
                     count++;
                 }
